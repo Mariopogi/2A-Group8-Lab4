@@ -17,6 +17,7 @@ public class IT2A_Group8_Lab4 {
         int choice;
 
         while (true) {
+            clearConsole();
             System.out.println("-----------------------------------------------------");
             System.out.println("           STACK APPLICATION CONVERSION MENU         ");
             System.out.println("-----------------------------------------------------\n");
@@ -42,10 +43,12 @@ public class IT2A_Group8_Lab4 {
                     infixToPostfixMenu();
                     break;
                 case 2:
-                    System.out.println("Infix to Prefix");
+                    clearConsole();
+                    infixToPrefixMenu();
                     break;
                 case 3:
-                    System.out.println("Postfix to Infix");
+                    clearConsole();
+                    postfixToInfixMenu();
                     break;
                 case 0:
                     System.out.println("Exiting the program. Goodbye!");
@@ -122,29 +125,10 @@ public class IT2A_Group8_Lab4 {
             System.out.println("Postfix Expression: " + postfix);
             System.out.println();
 
-            String again;
-            while (true) {
-                System.out.print("Try Again (Y/N): ");
-                again = scanner.nextLine().trim().toUpperCase();
-
-                if (again.isEmpty()) {
-                    System.out.println("Error: Input cannot be empty. Please enter 'Y' or 'N' only.\n");
-                    continue;
-                }
-
-                if (again.equals("Y")) {
-                    clearConsole();
-                    break; // go back to top of infixToPostfixMenu()
-                } else if (again.equals("N")) {
-                    clearConsole();
-                    return;
-                } else {
-                    System.out.println("Error: Invalid input. Please enter only 'Y' or 'N'.\n");
-                }
-            }
+            if (!tryAgain()) return;
+            clearConsole();
         }
     }
-
 
     // Infix to Postfix Method (with validation) - handles actual conversion process
     public static String infixToPostfix(String infix) {
@@ -223,7 +207,6 @@ public class IT2A_Group8_Lab4 {
         return postfix.toString();
     }
 
-
     // Helper Methods
     private static boolean isOperator(char ch) {
         return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^';
@@ -238,6 +221,98 @@ public class IT2A_Group8_Lab4 {
         }
     }
 
+    private static boolean tryAgain() {
+        while (true) {
+            System.out.print("Try Again (Y/N): ");
+            String input = scanner.nextLine().trim().toUpperCase();
 
+            if (input.equals("Y")) return true;
+            if (input.equals("N")) return false;
+
+            System.out.println("Invalid input. Please enter 'Y' or 'N' only.\n");
+        }
+    }
+
+    public static void infixToPrefixMenu() {
+        while (true) {
+            System.out.print("Enter the Infix Expression: ");
+            String infix = scanner.nextLine();
+
+            if (infix.trim().isEmpty()) {
+                System.out.println("Error: Expression cannot be empty.\n");
+                pressEnterToContinue();
+                clearConsole();
+                continue;
+            }
+
+            String prefix = infixToPrefix(infix);
+            System.out.println("\nInfix Expression: " + infix);
+            System.out.println("Prefix Expression: " + prefix + "\n");
+
+            if (!tryAgain()) return;
+            clearConsole();
+        }
+    }
+
+    public static String infixToPrefix(String infix) {
+        infix = infix.replaceAll("\\s+", "");
+        if (infix.isEmpty()) return "Error: Expression cannot be empty.";
+        String reversed = new StringBuilder(infix).reverse().toString();
+        StringBuilder modified = new StringBuilder();
+
+        for (char ch : reversed.toCharArray()) {
+            if (ch == '(') modified.append(')');
+            else if (ch == ')') modified.append('(');
+            else modified.append(ch);
+        }
+
+        String postfix = infixToPostfix(modified.toString());
+        if (postfix.startsWith("Error")) return postfix;
+        return new StringBuilder(postfix).reverse().toString();
+    }
+
+    public static void postfixToInfixMenu() {
+        while (true) {
+            System.out.print("Enter the Postfix Expression: ");
+            String postfix = scanner.nextLine();
+
+            if (postfix.trim().isEmpty()) {
+                System.out.println("Error: Expression cannot be empty.\n");
+                pressEnterToContinue();
+                clearConsole();
+                continue;
+            }
+
+            String infix = postfixToInfix(postfix);
+            System.out.println("\nPostfix Expression: " + postfix);
+            System.out.println("Infix Expression: " + infix + "\n");
+
+            if (!tryAgain()) return;
+            clearConsole();
+        }
+    }
+
+    public static String postfixToInfix(String postfix) {
+        postfix = postfix.replaceAll("\\s+", "");
+        if (postfix.isEmpty()) return "Error: Expression cannot be empty.";
+        Stack<String> stack = new Stack<>();
+
+        for (char ch : postfix.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                stack.push(ch + "");
+            } else if (isOperator(ch)) {
+                if (stack.size() < 2) return "Error: Invalid Postfix Expression.";
+                String op2 = stack.pop();
+                String op1 = stack.pop();
+                String exp = "(" + op1 + ch + op2 + ")";
+                stack.push(exp);
+            } else {
+                return "Error: Invalid character detected.";
+            }
+        }
+
+        if (stack.size() != 1) return "Error: Invalid Postfix Expression.";
+        return stack.pop();
+    }
 
 }
