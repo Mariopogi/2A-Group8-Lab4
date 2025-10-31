@@ -92,17 +92,13 @@ public class IT2A_Group8_Lab4 {
     // Clear Console Method
     public static void clearConsole() {
     try {
-        // cls command in BlueJ
         if (System.console() == null) {
             System.out.print('\u000c');
             return;
         }
-
-        // cls in windows cmd or vs code
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
         } else {
-            // cls for Linux, macOS, or terminals that support ANSI codes
             System.out.print("\033[H\033[2J");
             System.out.flush();
         }
@@ -121,43 +117,40 @@ public class IT2A_Group8_Lab4 {
 
             String postfix = infixToPostfix(infix);
 
-            System.out.println("\nInfix Expression: " + infix);
-            System.out.println("Postfix Expression: " + postfix);
-            System.out.println();
+            if (postfix.startsWith("Error:")) {
+                System.out.println("\n" + postfix + "\n"); }
+            else {
+                System.out.println("\nInfix Expression: " + infix);
+                System.out.println("Postfix Expression: " + postfix);
+                System.out.println();
+            }
 
             if (!tryAgain()) return;
             clearConsole();
         }
     }
 
-    // Infix to Postfix Method (with validation) - handles actual conversion process
+    // Infix to Postfix Method 
     public static String infixToPostfix(String infix) {
-        infix = infix.replaceAll("\\s+", ""); // remove spaces
+        infix = infix.replaceAll("\\s+", "");
         Stack<Character> stack = new Stack<>();
         StringBuilder postfix = new StringBuilder();
 
-        // constraints
-        if (infix.isEmpty()) return "Error: Expression cannot be empty.";
+        if (infix.isEmpty()) return "Error: Infix Expression cannot be empty.";
 
         if (!Character.isLetter(infix.charAt(0)) && infix.charAt(0) != '(')
-            return "Error: Expression must start with an operand or '('";
+            return "Error: Invalid Format. Infix Expression must start with an operand or '('";
 
         if (!Character.isLetter(infix.charAt(infix.length() - 1)) && infix.charAt(infix.length() - 1) != ')')
-            return "Error: Expression must end with an operand or ')'";
-
-        int count = 0;
-        for (char ch : infix.toCharArray())
-            if (Character.isLetter(ch) || isOperator(ch)) count++;
-        if (count > 15) return "Error: Expression exceeds 15 operands/operators.";
+            return "Error: Invalid Format. Infix Expression must end with an operand or ')'";
 
         char prev = ' ';
 
-        // main scanning loop
         for (int i = 0; i < infix.length(); i++) {
             char ch = infix.charAt(i);
 
             if (!Character.isLetter(ch) && !isOperator(ch) && ch != '(' && ch != ')')
-                return "Error: Invalid character detected.";
+                return "Error: Invalid character detected (only letters, operators, and parentheses allowed).";
 
             if (Character.isLetter(ch)) {
                 if (i > 0 && (Character.isLetter(prev) || prev == ')'))
@@ -167,7 +160,7 @@ public class IT2A_Group8_Lab4 {
 
             else if (isOperator(ch)) {
                 if (i == 0 || isOperator(prev) || prev == '(')
-                    return "Error: Operator cannot appear at this position.";
+                    return "Error: Operator cannot appear at the start or after another operator or '('";
                 while (!stack.isEmpty() && precedence(stack.peek()) >= precedence(ch))
                     postfix.append(stack.pop());
                 stack.push(ch);
@@ -191,7 +184,7 @@ public class IT2A_Group8_Lab4 {
                     }
                     postfix.append(top);
                 }
-                if (!foundOpening) return "Error: Unmatched ')'.";
+                if (!foundOpening) return "Error: Unmatched ')' found.";
             }
 
             prev = ch;
@@ -203,7 +196,6 @@ public class IT2A_Group8_Lab4 {
             postfix.append(top);
         }
 
-        // return final postfix string
         return postfix.toString();
     }
 
@@ -212,6 +204,7 @@ public class IT2A_Group8_Lab4 {
         return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^';
     }
 
+    // Precedence Method
     private static int precedence(char ch) {
         switch (ch) {
             case '+': case '-': return 1;
@@ -221,6 +214,7 @@ public class IT2A_Group8_Lab4 {
         }
     }
 
+    // Try Again Method
     private static boolean tryAgain() {
         while (true) {
             System.out.print("Try Again (Y/N): ");
@@ -228,32 +222,33 @@ public class IT2A_Group8_Lab4 {
 
             if (input.equals("Y")) return true;
             if (input.equals("N")) return false;
-
-            System.out.println("Invalid input. Please enter 'Y' or 'N' only.\n");
+            else {
+                System.out.println("Invalid input. Please enter 'Y' or 'N' only.\n");
+            }
+            
         }
     }
 
+    // Infix to Prefix Menu Method
     public static void infixToPrefixMenu() {
         while (true) {
             System.out.print("Enter the Infix Expression: ");
             String infix = scanner.nextLine();
 
-            if (infix.trim().isEmpty()) {
-                System.out.println("Error: Expression cannot be empty.\n");
-                pressEnterToContinue();
-                clearConsole();
-                continue;
-            }
-
             String prefix = infixToPrefix(infix);
+
+            if (prefix.startsWith("Error:")) {
+                System.out.println("\n" + prefix + "\n"); }
+            else {
             System.out.println("\nInfix Expression: " + infix);
-            System.out.println("Prefix Expression: " + prefix + "\n");
+            System.out.println("Prefix Expression: " + prefix + "\n"); }
 
             if (!tryAgain()) return;
             clearConsole();
         }
     }
 
+    // Infix to Prefix Method
     public static String infixToPrefix(String infix) {
         infix = infix.replaceAll("\\s+", "");
         if (infix.isEmpty()) return "Error: Expression cannot be empty.";
@@ -271,48 +266,57 @@ public class IT2A_Group8_Lab4 {
         return new StringBuilder(postfix).reverse().toString();
     }
 
+    // Postfix to Infix Menu Method
     public static void postfixToInfixMenu() {
         while (true) {
             System.out.print("Enter the Postfix Expression: ");
             String postfix = scanner.nextLine();
 
-            if (postfix.trim().isEmpty()) {
-                System.out.println("Error: Expression cannot be empty.\n");
-                pressEnterToContinue();
-                clearConsole();
-                continue;
-            }
-
             String infix = postfixToInfix(postfix);
+
+            if (infix.startsWith("Error:")) {
+                System.out.println("\n" + infix + "\n"); }
+            else {
             System.out.println("\nPostfix Expression: " + postfix);
-            System.out.println("Infix Expression: " + infix + "\n");
+            System.out.println("Infix Expression: " + infix + "\n"); }
 
             if (!tryAgain()) return;
             clearConsole();
         }
     }
 
+    // Postfix to Infix Method
     public static String postfixToInfix(String postfix) {
         postfix = postfix.replaceAll("\\s+", "");
-        if (postfix.isEmpty()) return "Error: Expression cannot be empty.";
-        Stack<String> stack = new Stack<>();
 
+        if (postfix.isEmpty()) 
+            return "Error: Postfix Expression cannot be empty.";
+        if (isOperator(postfix.charAt(0))) 
+            return "Error: Invalid Format. Postsfix Expression cannot start with an operator.";
+        if (Character.isLetter(postfix.charAt(postfix.length() - 1))) 
+            return "Error: Invalid Format. Postsfix Expression cannot end with an operand.";
+
+        Stack<String> stack = new Stack<>();
         for (char ch : postfix.toCharArray()) {
             if (Character.isLetter(ch)) {
                 stack.push(ch + "");
-            } else if (isOperator(ch)) {
-                if (stack.size() < 2) return "Error: Invalid Postfix Expression.";
+            } 
+            else if (isOperator(ch)) {
+                if (stack.size() < 2) 
+                    return "Error: Not enough operands for operator.";
                 String op2 = stack.pop();
                 String op1 = stack.pop();
                 String exp = "(" + op1 + ch + op2 + ")";
                 stack.push(exp);
-            } else {
+            } 
+            else {
                 return "Error: Invalid character detected.";
             }
         }
 
-        if (stack.size() != 1) return "Error: Invalid Postfix Expression.";
+        if (stack.size() != 1)
+            return "Error: Invalid Postfix Expression. Too many operands or operators.";
+
         return stack.pop();
     }
-
 }
