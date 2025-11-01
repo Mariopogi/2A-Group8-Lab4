@@ -144,6 +144,11 @@ public class IT2A_Group8_Lab4 {
         if (!Character.isLetter(infix.charAt(infix.length() - 1)) && infix.charAt(infix.length() - 1) != ')')
             return "Error: Invalid Format. Infix Expression must end with an operand or ')'";
 
+        int count = 0;
+        for (char ch : infix.toCharArray()) {
+            if (Character.isLetter(ch) || isOperator(ch)) count++; }
+        if (count > 15) return "Error: Expression exceeds 15 operands & operators.";
+
         char prev = ' ';
 
         for (int i = 0; i < infix.length(); i++) {
@@ -295,6 +300,11 @@ public class IT2A_Group8_Lab4 {
             return "Error: Invalid Format. Postsfix Expression cannot start with an operator.";
         if (Character.isLetter(postfix.charAt(postfix.length() - 1))) 
             return "Error: Invalid Format. Postsfix Expression cannot end with an operand.";
+
+        int count = 0;
+        for (char ch : postfix.toCharArray()) {
+            if (Character.isLetter(ch) || isOperator(ch)) count++; }
+        if (count > 15) return "Error: Expression exceeds 15 operands & operators.";
 
         Stack<String> stack = new Stack<>();
         for (char ch : postfix.toCharArray()) {
